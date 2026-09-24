@@ -1,3 +1,233 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-/* 全站基础样式集中在 index.astro 的 <style> 中维护，避免双处管理。 */
+/* ========= Dark Theme ========= */
+/* 默认配色 */
+[data-theme='dark'],
+:root:not([data-theme]) {
+    --bg-page: #0b0b0d; /* --d-bg */
+    --bg-card: #16161a; /* --d-surface */
+    --bg-header: linear-gradient(135deg, #0b0b0d 0%, #16161a 100%);
+    --border: rgba(255, 255, 255, 0.12); /* --d-hairline */
+    --border-light: rgba(255, 255, 255, 0.07); /* --d-hairline-soft */
+    --text-primary: #f5f5f7; /* --d-ink */
+    --text-secondary: #a1a1a6; /* --d-ink-2 */
+    --text-muted: #8a8a90; /* --d-ink-3 */
+    --text-dimmed: #6e6e73; /* 最弱一级，沿用 Apple 中性灰 */
+    --accent: #0a84ff; /* --d-blue */
+    --accent-hover: #3395ff; /* --d-blue-hover */
+    --accent-bg: rgba(10, 132, 255, 0.16); /* --d-chip-bg */
+    --accent-border: rgba(10, 132, 255, 0.3);
+    --blockquote-bg: rgba(10, 132, 255, 0.1);
+    --table-row-even: rgba(255, 255, 255, 0.035);
+    --inline-code-color: #f5f5f7; /* --d-ink */
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.36); /* --d-sh-1 */
+    --card-hover-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4), 0 24px 56px rgba(0, 0, 0, 0.38); /* --d-sh-2 */
+}
+
+/* ========= Light Theme ========= */
+[data-theme='light'] {
+    --bg-page: #f5f5f7;
+    --bg-card: #ffffff;
+    --bg-header: linear-gradient(135deg, #ffffff 0%, #f5f5f7 100%);
+    --border: rgba(0, 0, 0, 0.08);
+    --border-light: rgba(0, 0, 0, 0.055);
+    --text-primary: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --text-muted: #86868b;
+    --text-dimmed: #a1a1a6;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --accent-bg: rgba(0, 113, 227, 0.08);
+    --accent-border: rgba(0, 113, 227, 0.2);
+    --blockquote-bg: rgba(0, 113, 227, 0.04);
+    --table-row-even: rgba(0, 0, 0, 0.025);
+    --inline-code-color: #1d1d1f;
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);
+    --card-hover-shadow: 0 1px 2px rgba(0, 0, 0, 0.035), 0 8px 24px rgba(0, 0, 0, 0.045),
+    0 24px 56px rgba(0, 0, 0, 0.045);
+}
+
+body {
+    font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+    line-height: 1.75;
+    background: var(--bg-page);
+    color: var(--text-secondary);
+}
+
+/* Prose styles for article content */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.prose h1 {
+    font-size: 1.5em;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+.prose h2 {
+    font-size: 1.3em;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--border);
+}
+
+.prose h3 {
+    font-size: 1.1em;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+.prose p {
+    color: var(--text-secondary);
+    margin-bottom: 1em;
+}
+
+.prose a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.prose a:hover {
+    text-decoration: underline;
+}
+
+.prose ul,
+.prose ol {
+    color: var(--text-secondary);
+    padding-left: 1.5em;
+}
+
+.prose li {
+    margin-bottom: 0.4em;
+    line-height: 1.75;
+}
+
+.prose code {
+    background: var(--bg-card);
+    color: var(--inline-code-color);
+    padding: 0.15em 0.45em;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    border: 1px solid var(--border);
+}
+
+.prose pre {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+}
+
+.prose pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.85em;
+    line-height: 1.6;
+    border: none;
+}
+
+.prose blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 0.5em 1em;
+    margin: 1em 0;
+    color: var(--text-muted);
+    background: var(--blockquote-bg);
+    border-radius: 0 6px 6px 0;
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.prose th,
+.prose td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    text-align: left;
+    color: var(--text-secondary);
+}
+
+.prose th {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.prose tr:nth-child(even) {
+    background: var(--table-row-even);
+}
+
+.prose hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2em 0;
+}
+
+.prose img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 1em 0;
+}
+
+/* Copy code button */
+.copy-code-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    background: var(--bg-page);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.prose pre:hover .copy-code-btn {
+    opacity: 1;
+}
+
+.copy-code-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Mobile responsive prose */
+@media (max-width: 640px) {
+    .prose pre {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .prose table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .prose h1 {
+        font-size: 1.3em;
+    }
+
+    .prose h2 {
+        font-size: 1.15em;
+    }
+
+    .prose blockquote {
+        padding: 0.4em 0.8em;
+        margin: 0.8em 0;
+    }
+}
