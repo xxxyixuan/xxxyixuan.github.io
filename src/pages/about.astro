@@ -1,0 +1,25 @@
+---
+import PageLayout from '../layouts/PageLayout.astro'
+import {SITE_NAME} from '../config.ts'
+
+const SITE_DESCRIPTION: string = "关于逸瑄（Yixuan），记录学习踩坑与原理思考，写可复现教程、生活随笔。"
+---
+
+<PageLayout title={`关于 - ${SITE_NAME} `} description={SITE_DESCRIPTION}>
+about
+</PageLayout>
+
+<style>
+    .home {
+        padding: clamp(56px, 8vw, 104px) 24px;
+        text-align: center;
+    }
+
+    .home p {
+        margin-top: 14px;
+    }
+
+    .btn-row {
+        margin-top: 34px;
+    }
+</style>

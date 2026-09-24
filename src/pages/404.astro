@@ -1,0 +1,63 @@
+---
+import PageLayout from "@src/layouts/PageLayout.astro";
+
+const title: string = "404 - Page Not Found";
+const description: string = "The page you are looking for does not exist.";
+---
+<PageLayout title={title} description={description}>
+  <div class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Page Not Found</h1>
+      <p class="hero-tagline">This page isn’t in our solar system.</p>
+    </div>
+  </div>
+</PageLayout>
+<style>
+    /* main 本身是 body 的 flex item（flex:1 1 auto），高度已经撑满 header/footer 之外的
+       剩余空间。这里再让 main 内部也用 flex，hero 就能靠 margin:auto 顶到正中间 ——
+       比原来的 min-height:100% + justify-content:center 更可靠：后者依赖父级高度是
+       definite 才解析得出来，前者由 flex 直接分配剩余空间，不受这个前提限制。 */
+    :global(#main) {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.5rem;
+        /* 关键：flex 容器里 margin:auto 会吃掉上下左右的全部剩余空间 → 水平垂直都居中 */
+        margin: auto;
+        padding: 2rem 1.5rem;
+    }
+
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .hero-title {
+        font-weight: 700;
+        font-size: 1.875rem;
+        line-height: 1.2;
+        margin-inline: auto;
+    }
+
+    .hero-tagline {
+        max-width: 40ch;
+        margin-inline: auto;
+        line-height: 1.5;
+    }
+
+    .start {
+        text-align: left;
+    }
+
+    .start .hero-title,
+    .start .hero-tagline {
+        margin-inline: 0;
+    }
+</style>
