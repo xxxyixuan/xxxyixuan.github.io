@@ -1,0 +1,280 @@
+---
+import Icon from "./Icon.astro";
+import type {IconPaths} from "@pub/iconPaths";
+
+const BASE_YEAR = 2026;
+const getCopyrightYear = () => {
+    const currentYear = new Date().getFullYear();
+    return currentYear > BASE_YEAR ? `${BASE_YEAR} - ${currentYear}` : `${BASE_YEAR}`;
+};
+
+const siteLinks = [
+    {label: '文章', href: '/posts/'},
+    {label: '项目', href: '/projects/'},
+    {label: '关于', href: '/about/'},
+];
+
+const socialLinks = [
+    {label: 'GitHub', href: 'https://github.com/xxxyixuan', icon: 'github'},
+    {label: 'gitee', href: 'https://gitee.com/xxxyixuan', icon: 'gitee'},
+    {label: 'Email', href: 'mailto:wyh030531@gmail.com', icon: 'email'},
+];
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <section class="footer-brand">
+        <a class="brand-link" href="/" aria-label="返回首页">
+          <img
+              class="brand-avatar"
+              src='/avatar.png.jpg'
+              alt="avatar"
+              loading="lazy"
+              decoding="async"
+          />
+          <span class="brand-name">逸瑄 - Yixuan</span>
+        </a>
+        <p class="brand-bio"> 踩坑 · 思考 · 教程 · 随笔</p>
+      </section>
+
+      <section class="footer-nav">
+        <ul class="nav-list">
+            {siteLinks.map((link) => (
+                <li><a href={link.href}>{link.label}</a></li>
+            ))}
+        </ul>
+      </section>
+
+      <section class="footer-social">
+        <ul class="social-list">
+            {socialLinks.map((link) => (
+                <li>
+                  <a
+                      href={link.href}
+                      class="social-link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={link.label}
+                  >
+                    <Icon icon={link.icon as keyof typeof IconPaths} size="30px" color="currentColor" />
+                  </a>
+                </li>
+            ))}
+        </ul>
+      </section>
+    </div>
+
+    <div class="footer-copyright">
+      <p class="copyright"> &copy; {getCopyrightYear()} <a href="/">逸瑄 - xxxyixuan</a>. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<style lang="scss">
+  /* ========= Local SCSS variables ========= */
+  // 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px
+  $radius-avatar: 50%;
+
+  $breakpoint-md: 768px;
+  $breakpoint-sm: 480px;
+
+  .footer {
+    // 通过 CSS 变量向子选择器传主题相关值（SCSS 变量在嵌套中会被独立解析）
+    --footer-padding-block: clamp(24px, 4vw, 48px);
+
+    background: var(--bg-card);
+    margin-top: 0; // 由 PageLayout 的 flex 布局负责定位，Footer 不假设容器布局
+    padding: var(--footer-padding-block) 0 8px;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .footer-inner {
+    width: 100%;
+    // 限宽与左右留白走全站统一变量（定义在 PageLayout 的 :root），保证与 header / main 对齐
+    max-width: var(--layout-max-width);
+    margin-inline: auto;
+    padding-inline: var(--layout-pad-x);
+  }
+
+  /* ========= Top section ========= */
+  .footer-top {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: var(--layout-gap); // 三列网格统一间距（定义在 PageLayout :root）
+    min-height: clamp(56px, 7.5vh, 120px);
+    padding-bottom: clamp(1rem, 2vw, 1.75rem);
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  /* 三个 section 统一基线：宽度由 grid 均分，内容垂直居中，防内容撑破格子 */
+  .footer-top > section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  /* ----- Brand（左对齐） ----- */
+  .footer-brand {
+    align-items: flex-start;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .brand-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-avatar;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease;
+  }
+
+  .brand-name {
+    // 显式撑开点击区域，避免出现链接 hover 范围不连续
+    line-height: 1.2;
+  }
+
+  .brand-bio {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+
+  /* ----- Nav（居中） ----- */
+  .footer-nav {
+    align-items: center;
+  }
+
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .nav-list a {
+    padding: 8px 16px;
+    display: inline-block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+    }
+  }
+
+  /* ----- Social（右对齐） ----- */
+  .footer-social {
+    align-items: flex-end;
+  }
+
+  .social-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-card); // 统一圆角（定义在 PageLayout :root）
+    color: var(--text-muted);
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent-hover);
+      background: var(--bg-page);
+      border-color: var(--border);
+      transform: translateY(-1px);
+    }
+  }
+
+  .footer-copyright {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding-top: 22px;
+  }
+
+  .copyright {
+    margin: 0;
+    font-size: 0.825rem;
+    color: var(--text-dimmed);
+    letter-spacing: 0.01em;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    .footer-top {
+      grid-template-columns: 1fr;
+      min-height: 0; // 堆叠成单列后不再需要撑高度
+      gap: 24px;
+      padding-bottom: 28px;
+    }
+
+    // 窄屏统一左对齐，否则 nav 居中 / social 靠右会显得散
+    .footer-top > section {
+      align-items: flex-start;
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .footer {
+      padding-bottom: 24px;
+    }
+
+    .brand-avatar {
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-avatar,
+    .social-link {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>

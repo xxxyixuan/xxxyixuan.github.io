@@ -1,0 +1,125 @@
+---
+import Footer from '../components/Footer.astro'
+import Header from '../components/Header.astro'
+import '../styles/global.css'
+
+import {SITE_NAME, SITE_DESCRIPTION} from '../config'
+
+export interface Props {
+    title?: string
+    description?: string
+}
+
+const {title, description} = Astro.props
+
+let sTitle = title || SITE_NAME
+let sDesc = description || SITE_DESCRIPTION
+---
+
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <!-- icon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- page meta -->
+    <title>{sTitle || SITE_NAME}</title>
+    <meta name="title" content={sTitle || SITE_NAME} />
+    <meta name="description" content={sDesc} />
+
+    <script is:inline>
+        /* 加载主题 */
+        (function () {
+            try {
+                const choice = localStorage.getItem('theme') || 'system'
+                const isDark =
+                    choice === 'dark' ||
+                    (choice === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+                document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+                document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+            } catch (e) {
+            }
+        })()
+    </script>
+  </head>
+  <body>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global lang="scss">
+
+  :root {
+    /* =================================================================
+       页面骨架尺寸参数（全站唯一来源，集中在此维护）
+       =================================================================
+       【限宽与留白】header-inner / main / footer-inner 三处共用，
+                    保证三块内容区左右边缘完全对齐
+       --layout-max-width : 内容区最大宽度
+       --layout-pad-x     : 内容区左右留白
+       --layout-gap       : 三列网格的统一横向间距（header-inner / footer-top）
+
+       【高度】
+       --layout-header-h  : header 固定高度
+       --layout-footer-h  : footer 高度（auto = 跟随内容自适应）
+
+       【圆角】卡片/按钮类元素的统一圆角（Header 的 nav-link、theme-toggle
+              与 Footer 的 social-link 共用；scoped 组件引用 CSS 变量不受限制）
+       --radius-card      : 8px
+
+       【响应式断点约定】@media 不支持 var()，SCSS 变量也无法跨 .astro 文件
+       共享，故断点值只能在各组件内定义，此处仅声明唯一权威约定值：
+       sm = 480px，md = 768px（Header/Footer 内的 $breakpoint-* 必须与之一致）
+       ================================================================= */
+    --layout-max-width: 83rem;
+    --layout-pad-x: clamp(1.25rem, 4vw, 1.5rem);
+    --layout-gap: clamp(1rem, 2vw, 2rem);
+
+    --layout-header-h: clamp(56px, 8vw, 96px);
+    --layout-footer-h: auto;
+
+    --radius-card: 8px;
+  }
+
+  html {
+    height: 100%;
+
+  }
+
+  body {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  header {
+    flex: 0 0 var(--layout-header-h);
+    height: var(--layout-header-h);
+  }
+
+  main {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: var(--layout-max-width);
+    margin-inline: clamp(4rem, 10%, 12rem);
+    padding: 0 var(--layout-pad-x);
+  }
+
+  footer {
+    flex: 0 0 var(--layout-footer-h);
+    height: var(--layout-footer-h);
+    margin-top: 0;
+    box-sizing: border-box;
+  }
+</style>

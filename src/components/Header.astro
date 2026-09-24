@@ -1,0 +1,370 @@
+---
+import Icon from "./Icon.astro";
+import type {IconPaths} from "@pub/iconPaths";
+import {MY_NAME_EN, MY_NAME_ZH} from "@src/config.ts";
+
+const navLinks = [
+    {label: '首页', href: '/'},
+    {label: '文章', href: '/posts/'},
+    {label: '标签', href: '/tags/'},
+    {label: '项目', href: '/projects/'},
+    {label: '关于', href: '/about/'},
+];
+
+// 当前页高亮：首页精确匹配，其余按前缀匹配（/posts/xxx 也算「文章」激活）
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) =>
+    href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+---
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <a class="brand-link" href="/" aria-label="返回首页">
+        <img
+            class="brand-avatar"
+            src="/avatar.png.jpg"
+            alt="avatar"
+            decoding="async"
+        />
+        <span class="brand-text">
+          <span class="brand-name">{MY_NAME_EN}</span>
+          <span class="brand-tagline">{MY_NAME_ZH}</span>
+        </span>
+      </a>
+    </div>
+    <nav class="header-nav" aria-label="主导航">
+      <ul class="nav-list">
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class:list={['nav-link', {active: isActive(link.href)}]}
+              aria-current={isActive(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <!-- 文章搜索框：GET /search/?q=…，搜索页建好后表单自动接上 -->
+      <form class="search-form" action="/search/" method="get" role="search">
+        <label class="search-box">
+          <Icon icon="search" size="16px" color="currentColor" />
+          <input
+            class="search-input"
+            type="search"
+            name="q"
+            placeholder="搜索文章…"
+            autocomplete="off"
+            aria-label="搜索文章"
+          />
+        </label>
+      </form>
+
+      <!-- 主题切换按钮：dark 显示太阳（点了变亮），light 显示月亮 -->
+      <button class="theme-toggle" type="button" aria-label="切换深浅主题" title="切换主题">
+        <span class="theme-icon theme-icon-sun" aria-hidden="true">
+          <Icon icon="sun" size="18px" color="currentColor" />
+        </span>
+        <span class="theme-icon theme-icon-moon" aria-hidden="true">
+          <Icon icon="moon" size="18px" color="currentColor" />
+        </span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  // 主题切换：读当前渲染状态直接反转并写死到 localStorage（不再跟随 system）。
+  // 初始 data-theme 由 PageLayout 的内联脚本在 head 里设置好，这里只管切换。
+  document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    root.style.colorScheme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* localStorage 不可用（隐私模式等）就只切本次会话 */
+    }
+  });
+</script>
+
+<style lang="scss">
+  /* ========= Local SCSS variables ========= */
+  // 断点约定值以 PageLayout :root 的注释为准：sm = 480px
+  $breakpoint-sm: 480px;
+
+  .header {
+    padding: 1rem 0;
+  }
+
+  .header-inner {
+    // 三列 grid：两侧 1fr 等宽 → 中间的 nav 永远在页面正中。
+    // 之前用 flex + space-between 只是"间隙均分"，brand 和 actions 宽度不同时
+    // nav 会偏离中线。
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--layout-gap); // 三列网格统一间距（定义在 PageLayout :root）
+
+    width: 100%;
+    // 限宽与左右留白走全站统一变量（定义在 PageLayout 的 :root），保证与 main / footer 对齐
+    max-width: var(--layout-max-width);
+    margin-inline: auto;
+    padding-inline: var(--layout-pad-x);
+
+    // header 在 PageLayout 里是固定 72px 的 flex item（高度 definite），
+    // 撑满它才能让品牌区垂直居中
+    height: 100%;
+  }
+
+  /* ========= 个人头像 + 姓名 ========= */
+  .header-brand {
+    // grid 三列布局：靠左对齐；min-width:0 防止内容 min-content 撑破 1fr 轨道
+    justify-self: start;
+    min-width: 0;
+    margin: auto 0;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ========= 导航菜单 ========= */
+  .header-nav {
+    // 中间列 auto 由内容决定宽度，justify-self 让它精确落在两列 1fr 的正中
+    justify-self: center;
+    min-width: 0;
+  }
+
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .brand-avatar {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    border-radius: 8%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0; // 允许子项在窄屏收缩，配合下面的 ellipsis
+  }
+
+  .brand-name {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+  }
+
+  .brand-tagline {
+    font-size: 0.875rem;
+    line-height: 1.2;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ========= 导航菜单 ========= */
+  .nav-list {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-link {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: var(--radius-card);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-decoration: none;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+      background: var(--bg-page);
+    }
+
+    // 当前页高亮：accent 文字 + 淡色底，跟主题切换/搜索框的视觉语言一致
+    &.active {
+      color: var(--accent);
+      background: var(--accent-bg);
+    }
+  }
+
+  /* ========= 右侧动作区（搜索 + 主题切换） ========= */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-self: end; // grid 右列：靠右对齐
+    min-width: 0;
+  }
+
+  /* ----- 搜索框 ----- */
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-page);
+    color: var(--text-muted);
+    cursor: text;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease;
+
+    &:focus-within {
+      border-color: var(--accent);
+      color: var(--text-secondary);
+    }
+  }
+
+  .search-input {
+    width: 11rem;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    line-height: 1;
+
+    &::placeholder {
+      color: var(--text-dimmed);
+    }
+
+    // 收掉 search 类型输入框自带的清除叉，保持胶囊干净
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  }
+
+  /* ----- 主题切换按钮 ----- */
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-card);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--text-primary);
+      background: var(--bg-page);
+      border-color: var(--border);
+    }
+  }
+
+  // dark → 显示太阳（点了变亮）；light → 显示月亮（点了变暗）。
+  // 祖先的 [data-theme] 在 <html> 上（组件外），必须用 :global() 包住，
+  // 否则 Astro scoped 编译会把 cid 错误地塞进祖先段，导致规则匹配不上（moon 会静默失效）。
+  .theme-icon {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .theme-icon-sun {
+    display: inline-flex;
+  }
+
+  :global([data-theme='light']) .theme-icon-moon {
+    display: inline-flex;
+  }
+
+  @media (max-width: 768px) {
+    // 中屏先收紧导航的点击区，避免和 brand / actions 抢宽度
+    .nav-link {
+      padding: 6px 10px;
+      font-size: 0.85rem;
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    // 小屏把副标题收起来，只留头像 + 名字，避免和后续导航抢位置
+    .brand-tagline {
+      display: none;
+    }
+
+    // 头像同步缩一档，给中间的 nav 让宽度
+    .brand-avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    // 搜索框同理收起，动作区只留主题切换
+    .search-form {
+      display: none;
+    }
+
+    // 五项导航在小屏继续压缩
+    .nav-link {
+      padding: 5px 8px;
+      font-size: 0.8rem;
+    }
+
+    // 极窄屏（~360px）五项 + brand + actions 仍可能超宽：
+    // 「首页」与 logo 重复，收掉它最划算；nav 万一还溢出允许横向滑动兜底
+    .nav-list li:first-child {
+      display: none;
+    }
+
+    .header-nav {
+      overflow-x: auto;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-link,
+    .brand-avatar,
+    .search-box,
+    .theme-toggle {
+      transition: none;
+    }
+  }
+</style>
