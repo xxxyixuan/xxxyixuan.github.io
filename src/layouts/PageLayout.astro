@@ -23,6 +23,8 @@ let sDesc = description || SITE_DESCRIPTION
     <meta name="generator" content={Astro.generator} />
     <!-- icon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- RSS 自动发现：浏览器 / 阅读器能直接识别本站的订阅源 -->
+    <link rel="alternate" type="application/rss+xml" title={SITE_NAME} href="/rss.xml" />
     <!-- page meta -->
     <title>{sTitle || SITE_NAME}</title>
     <meta name="title" content={sTitle || SITE_NAME} />
