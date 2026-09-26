@@ -1,0 +1,193 @@
+---
+import PageLayout from '@layouts/PageLayout.astro'
+import Icon from '@components/Icon.astro'
+import {estimateMinutes, formatDate, getSortedPosts, getWordCount} from '@src/utils/posts.ts'
+import {render, type CollectionEntry} from 'astro:content'
+import {SITE_NAME} from '@src/config.ts'
+
+/* =================================================================
+   文章详情页 —— 内容集合里的每篇 .md 生成一个静态页面
+
+   data-pagefind-* 属性供 Pagefind 建索引（构建脚本见 package.json）：
+   - data-pagefind-body：只索引文章区域；站内一旦有页面带这个属性，
+     其余没带的页面（首页、标签页、404、搜索页）就都不进索引了
+   - data-pagefind-meta：把日期、标签交给搜索结果
+   - data-pagefind-ignore：字数/时长/标签这些元信息不参与全文检索，
+     但其中的 data-pagefind-meta 仍会被提取
+   ================================================================= */
+
+export async function getStaticPaths() {
+  const posts = await getSortedPosts()
+  return posts.map((post) => ({
+    params: {slug: post.id},
+    props: {post},
+  }))
+}
+
+interface Props {
+  post: CollectionEntry<'posts'>
+}
+
+const {post} = Astro.props
+const {Content} = await render(post)
+
+const date = formatDate(post.data.pubDate)
+const words = getWordCount(post.body)
+const minutes = estimateMinutes(post.body)
+const pageTitle = `${post.data.title} - ${SITE_NAME}`
+const pageDescription = post.data.excerpt ?? post.data.title
+---
+
+<PageLayout title={pageTitle} description={pageDescription}>
+  <article class="post" data-pagefind-body>
+    <a class="back" href="/posts/" data-pagefind-ignore>
+      <Icon icon="arrow-left" size="14px" color="currentColor" />
+      <span>文章</span>
+    </a>
+
+    <h1 class="post-title">{post.data.title}</h1>
+
+    <div class="post-meta" data-pagefind-ignore>
+      <time data-pagefind-meta="date" datetime={post.data.pubDate.toISOString()}>{date}</time>
+      {
+          words && (
+          <>
+                <span class="post-sep" aria-hidden="true">
+                  ·
+                </span>
+            <span>{words} 字</span>
+          </>
+          )
+      }
+      {
+          minutes && (
+          <>
+            <span class="post-sep" aria-hidden="true">
+              ·
+            </span>
+            <span>{minutes} 分钟</span>
+          </>
+          )
+      }
+      {
+          post.data.tags.length > 0 && (
+          <span
+              class="post-tags"
+              data-pagefind-meta="tags[data-tags]"
+              data-tags={post.data.tags.join(', ')}
+          >
+            {post.data.tags.map((tag) => (
+              <span class="post-tag">{tag}</span>
+            ))}
+          </span>
+          )
+      }
+    </div>
+
+    <div class="post-body prose">
+      <Content />
+    </div>
+
+    <footer class="post-foot" data-pagefind-ignore>
+      <a class="back" href="/posts/">
+        <Icon icon="arrow-left" size="14px" color="currentColor" />
+        <span>返回文章列表</span>
+      </a>
+    </footer>
+  </article>
+</PageLayout>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  /* 正文阅读流宽度（引用 PageLayout 的统一变量），并在 main 内居中 */
+  $measure: var(--content-measure);
+
+  .post {
+    max-width: $measure;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .post-title {
+    margin: 1.25rem 0 0;
+    font-size: clamp(1.5rem, 3.8vw, 2rem);
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.9rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .post-sep {
+    color: var(--text-dimmed);
+  }
+
+  .post-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* 标签：与列表页同规格的极轻胶囊（/tags/ 建好后可改为链接） */
+  .post-tag {
+    padding: 1px 9px;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    border-radius: 999px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  .post-body {
+    margin-top: 1.75rem;
+  }
+
+  .post-foot {
+    margin-top: clamp(2rem, 5vw, 3rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-light);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .post-title {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back {
+      transition: none;
+    }
+  }
+</style>
