@@ -1,0 +1,195 @@
+---
+import PageLayout from '@layouts/PageLayout.astro'
+import Icon from '@components/Icon.astro'
+import {projects} from '@src/data/projects.ts'
+import {SITE_NAME} from '@src/config.ts'
+
+/* =================================================================
+   项目页 —— 数据与 /about 共用 @src/data/projects.ts
+   视觉规格对齐 /about 的开源项目区（hairline 分隔的列表，不用卡片）
+   ================================================================= */
+
+const pageTitle = `项目 - ${SITE_NAME}`
+const pageDescription = '逸瑄的开源项目：uvman 等开发工具与实验性作品。'
+---
+
+<PageLayout title={pageTitle} description={pageDescription}>
+  <div class="projects-page">
+    <header class="page-head">
+      <h1 class="page-title">项目</h1>
+      <p class="page-desc">工作之外折腾的一些东西，大多是「自己要用所以自己写」。</p>
+    </header>
+
+    {
+      projects.length === 0 ? (
+        <p class="empty">项目还在整理中。</p>
+      ) : (
+        <ul class="project-list">
+          {projects.map((project) => (
+            <li class="project">
+              <div class="project-head">
+                <a
+                  class="project-name"
+                  href={project.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {project.name}
+                </a>
+                <span class="project-lang">{project.lang.join(' / ')}</span>
+              </div>
+              <p class="project-desc">{project.desc}</p>
+              <a
+                class="project-link"
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>在 {project.host} 查看</span>
+                <Icon icon="arrow-right" size="14px" color="currentColor" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</PageLayout>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  /* 内容宽度：列表 / 概览页用宽档（引用 PageLayout 的统一变量），并在 main 内居中 */
+  $measure: var(--content-wide);
+
+  .projects-page {
+    max-width: $measure;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .page-head {
+    margin-bottom: clamp(2rem, 5vw, 2.75rem);
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.6vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
+  .page-desc {
+    margin: 0.7rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  /* ================= 项目列表 ================= */
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project {
+    padding-block: 1.25rem;
+    border-top: 1px solid var(--border-light);
+
+    &:first-child {
+      padding-top: 0;
+      border-top: none;
+    }
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  .project-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .project-name {
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .project-lang {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+
+  .project-desc {
+    margin: 0 0 0.6rem;
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: var(--text-secondary);
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  /* ================= 空状态 ================= */
+  .empty {
+    margin: 0;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .page-title {
+      font-size: 1.4rem;
+    }
+
+    /* 窄屏项目名与语言换行，避免互相挤压 */
+    .project-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-name,
+    .project-link {
+      transition: none;
+    }
+  }
+</style>
