@@ -1,15 +1,7 @@
 ---
 import Icon from "./Icon.astro";
-import type {IconPaths} from "@pub/iconPaths";
 import {MY_NAME_EN, MY_NAME_ZH} from "@src/config.ts";
-
-const navLinks = [
-    {label: '首页', href: '/'},
-    {label: '文章', href: '/posts/'},
-    {label: '标签', href: '/tags/'},
-    {label: '项目', href: '/projects/'},
-    {label: '关于', href: '/about/'},
-];
+import {NAV_LINKS} from "@src/data/site.ts";
 
 // 当前页高亮：首页精确匹配，其余按前缀匹配（/posts/xxx 也算「文章」激活）
 const currentPath = Astro.url.pathname;
@@ -35,7 +27,7 @@ const isActive = (href: string) =>
     </div>
     <nav class="header-nav" aria-label="主导航">
       <ul class="nav-list">
-        {navLinks.map((link) => (
+        {NAV_LINKS.map((link) => (
           <li>
             <a
               href={link.href}

@@ -1,24 +1,12 @@
 ---
 import Icon from "./Icon.astro";
-import type {IconPaths} from "@pub/iconPaths";
+import {FOOTER_NAV_LINKS, SOCIAL_LINKS} from "@src/data/site.ts";
 
 const BASE_YEAR = 2026;
 const getCopyrightYear = () => {
-    const currentYear = new Date().getFullYear();
-    return currentYear > BASE_YEAR ? `${BASE_YEAR} - ${currentYear}` : `${BASE_YEAR}`;
+  const currentYear = new Date().getFullYear();
+  return currentYear > BASE_YEAR ? `${BASE_YEAR} - ${currentYear}` : `${BASE_YEAR}`;
 };
-
-const siteLinks = [
-    {label: '文章', href: '/posts/'},
-    {label: '项目', href: '/projects/'},
-    {label: '关于', href: '/about/'},
-];
-
-const socialLinks = [
-    {label: 'GitHub', href: 'https://github.com/xxxyixuan', icon: 'github'},
-    {label: 'gitee', href: 'https://gitee.com/xxxyixuan', icon: 'gitee'},
-    {label: 'Email', href: 'mailto:wyh030531@gmail.com', icon: 'email'},
-];
 ---
 
 <footer class="footer">
@@ -40,27 +28,27 @@ const socialLinks = [
 
       <section class="footer-nav">
         <ul class="nav-list">
-            {siteLinks.map((link) => (
-                <li><a href={link.href}>{link.label}</a></li>
-            ))}
+          {FOOTER_NAV_LINKS.map((link) => (
+            <li><a href={link.href}>{link.label}</a></li>
+          ))}
         </ul>
       </section>
 
       <section class="footer-social">
         <ul class="social-list">
-            {socialLinks.map((link) => (
-                <li>
-                  <a
-                      href={link.href}
-                      class="social-link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={link.label}
-                  >
-                    <Icon icon={link.icon as keyof typeof IconPaths} size="30px" color="currentColor" />
-                  </a>
-                </li>
-            ))}
+          {SOCIAL_LINKS.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="social-link"
+                target={link.href.startsWith('http') ? '_blank' : undefined}
+                rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                aria-label={link.label}
+              >
+                <Icon icon={link.icon} size="30px" color="currentColor" />
+              </a>
+            </li>
+          ))}
         </ul>
       </section>
     </div>

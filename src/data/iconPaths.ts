@@ -1,3 +1,17 @@
+/**
+ * 图标路径字典 —— 统一 256×256 viewBox，交给 Icon.astro 渲染。
+ *
+ * 约定（详见 rule.md §7）：
+ * - **描边类**（Phosphor 风格）：`fill="none"` + `stroke-width="16"`
+ * - **实心类**（logo）：`stroke="none"`，**不写 fill**（写了会让 Icon 的 color prop 失效）
+ * - 来源 viewBox 是 1024 的，**把缩放直接算进 d 的数字**，不要用 `<g transform>`
+ *
+ * ⚠️ 下面有一批图标当前**没有被任何页面引用**：
+ *   terminal-window / trophy / strategy / paper-plane-tilt / code / microphone-stage /
+ *   pencil-line / rocket-launch / list / heart / instagram / tiktok
+ * 它们是**预留的图标库**（改版、写新页面时会用到），
+ * 清理死代码时**不要因为 grep 不到引用就删掉**。
+ */
 export const IconPaths = {
     'search': `<circle cx="112" cy="112" r="64" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="m216 216-52-52"/>`,
     'terminal-window': `<path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="m80 96 40 32-40 32m56 0h40"/><rect width="192" height="160" x="32" y="48" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16.97" rx="8.5"/>`,
@@ -19,4 +33,7 @@ export const IconPaths = {
     'email': `<path stroke="none" d="M 223.376 52.375 H 44.625 c -3.798 0 -6.875 3.077 -6.875 6.875 v 137.501 c 0 3.798 3.077 6.875 6.875 6.875 h 178.751 c 3.798 0 6.875 -3.077 6.875 -6.875 V 59.25 c 0 -3.798 -3.077 -6.875 -6.875 -6.875 m -8.594 23.805 V 188.157 H 53.219 V 76.18 l -5.93 -4.623 l 8.439 -10.845 l 9.195 7.15 h 138.171 l 9.195 -7.15 l 8.439 10.845 z M 203.095 67.844 L 134.001 121.555 L 64.906 67.844 l -9.195 -7.15 l -8.439 10.845 l 5.93 4.623 l 73.391 57.063 a 12.031 12.031 0 0 0 14.764 0 L 214.782 76.18 l 5.93 -4.623 l -8.439 -10.845 z"/>`,
     'instagram': `<circle cx="128" cy="128" r="40" fill="none" stroke-miterlimit="10" stroke-width="16"/><rect width="184" height="184" x="36" y="36" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" rx="48"/><circle cx="180" cy="76" r="12" stroke="none" />`,
     'tiktok': `<path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="M168 106a96 96 0 0 0 56 18V84a56 56 0 0 1-56-56h-40v128a28 28 0 1 1-40-25V89a68 68 0 1 0 80 67Z"/>`,
+    'rss': `<circle cx="52" cy="204" r="20"/><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="M52 122A82 82 0 0 1 134 204"/><path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="M52 40A164 164 0 0 1 216 204"/>`,
 };
+
+export type IconName = keyof typeof IconPaths
