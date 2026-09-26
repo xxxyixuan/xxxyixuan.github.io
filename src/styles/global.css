@@ -134,6 +134,21 @@ body {
     border: none;
 }
 
+/* 代码块跟随主题：shiki 的双主题把两套配色写成 CSS 变量（--shiki-dark / --shiki-dark-bg），
+   亮色那套直接内联输出、默认生效；这里只负责在暗色下把它盖回去。
+   选择器用 .prose pre 而不是 shiki / Astro 生成的类名，避免依赖它们的命名。
+   必须带 !important —— 内联样式的优先级高于普通类选择器。 */
+[data-theme='dark'] .prose pre,
+:root:not([data-theme]) .prose pre {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+}
+
+[data-theme='dark'] .prose pre span,
+:root:not([data-theme]) .prose pre span {
+    color: var(--shiki-dark) !important;
+}
+
 .prose blockquote {
     border-left: 3px solid var(--accent);
     padding: 0.5em 1em;
