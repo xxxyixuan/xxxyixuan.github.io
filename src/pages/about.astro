@@ -1,25 +1,380 @@
 ---
-import PageLayout from '../layouts/PageLayout.astro'
-import {SITE_NAME} from '../config.ts'
+import PageLayout from '@layouts/PageLayout.astro'
+import Icon from '@components/Icon.astro'
+import {MY_NAME_EN, MY_NAME_ZH, SITE_NAME} from '@src/config.ts'
+import {ABOUT_SOCIAL_LINKS} from '@src/data/site.ts'
+import {projects} from '@src/data/projects.ts'
 
-const SITE_DESCRIPTION: string = "关于逸瑄（Yixuan），记录学习踩坑与原理思考，写可复现教程、生活随笔。"
+const pageTitle: string = `关于 - ${SITE_NAME}`
+const pageDescription: string = `关于 ${MY_NAME_ZH}（${MY_NAME_EN}）：Rust 爱好者，喜欢探索新的技术与工具 —— 在这里记录学习路上的见解与笔记，写能照着做出来的教程，也记一些生活里的琐碎点滴。`
+
+/** 开源项目：数据在 @src/data/projects.ts，与 /projects 页共用同一份 */
+
+/** 关于本站 */
+const siteBuild = [
+  {label: 'Astro', href: 'https://astro.build/'},
+  {label: 'Tailwind CSS', href: 'https://tailwindcss.com/'},
+  {label: 'TypeScript', href: 'https://www.typescriptlang.org/'},
+  {label: 'Vite', href: 'https://vitejs.dev/'},
+  {label: 'pnpm', href: 'https://pnpm.io/'},
+]
 ---
 
-<PageLayout title={`关于 - ${SITE_NAME} `} description={SITE_DESCRIPTION}>
-about
+<PageLayout title={pageTitle} description={pageDescription}>
+  <article class="about">
+
+
+    <!-- ============ 关于我 ============ -->
+    <section class="about-section">
+      <h2 class="about-section-title">关于我</h2>
+      <div class="about-text">
+        <p class="about-paragraph">嘿，我是 <strong class="about-text-lead">{MY_NAME_ZH}（{MY_NAME_EN}）</strong>，一名 Rust
+          爱好者。</p>
+        <p class="about-paragraph">
+          我乐于探索各类技术与工具，尝试不同编程语言和框架。希望借由写作梳理知识体系，沉淀学习中的踩坑复盘与原理思考，输出可复现的实操教程。
+        </p>
+        <p class="about-paragraph">除技术内容外，也会记录些许生活日常。</p>
+      </div>
+    </section>
+
+    <!-- ============ 开源项目 ============ -->
+    <section class="about-section">
+      <h2 class="about-section-title">开源项目</h2>
+      <ul class="about-projects">
+        {projects.map((project) => (
+          <li class="about-project">
+            <div class="about-project-head">
+              <a
+                class="about-project-name"
+                href={project.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {project.name}
+              </a>
+              <span class="about-project-lang">
+                        {project.lang.join(' / ')}
+                  </span>
+            </div>
+            <p class="about-project-desc">{project.desc}</p>
+            <a
+              class="about-project-link"
+              href={project.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>在 {project.host} 查看</span>
+              <Icon icon="arrow-right" size="14px" color="currentColor" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ============ 关于本站 ============ -->
+    <section class="about-section">
+      <h2 class="about-section-title">关于本站</h2>
+      <p class="about-paragraph">
+        搭建这个博客的初衷很简单：知识学完容易遗忘，很多内容隔段时间就要重新复盘。索性把学习途中的思考与笔记留存下来，既方便自己日后查阅，也能在重复学习时少走弯路。
+      </p>
+      <p class="about-paragraph">
+        我希望在这里分享有实际价值的内容：踩过的技术坑、梳理通透的原理、可以直接复现的实操教程。除技术之外，也会随手记录生活里的细碎日常。
+      </p>
+      <p class="about-paragraph">本站使用以下技术构建：</p>
+      <ul class="about-inline-list">
+        {siteBuild.map((tech) => (
+          <li>
+            <a
+              class="about-chip"
+              href={tech.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {tech.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p class="about-paragraph">
+        站点部署在 <b>GitHub Pages</b>、<b>Cloudflare Pages</b>，源码开放在
+        <a href="https://github.com/xxxyixuan/xxxyixuan.github.io" target="_blank" rel="noopener noreferrer">GitHub</a>。
+      </p>
+    </section>
+
+    <!-- ============ 联系我 ============ -->
+    <section class="about-section">
+      <h2 class="about-section-title">联系我</h2>
+      <p class="about-paragraph">想聊技术、指出文章里的错漏，或者只是打个招呼，都欢迎。</p>
+      <ul class="about-contacts">
+        {ABOUT_SOCIAL_LINKS.map((link) => (
+          <li>
+            <a
+              class="about-contact"
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon icon={link.icon} size="18px" color="currentColor" />
+              <span class="about-contact-label">{link.label}</span>
+              <span class="about-contact-value">{link.value}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <p class="about-closing">很高兴见到你，欢迎常来。</p>
+
+  </article>
 </PageLayout>
 
-<style>
-    .home {
-        padding: clamp(56px, 8vw, 104px) 24px;
-        text-align: center;
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：sm = 480px */
+  $breakpoint-sm: 480px;
+
+  /* 阅读流限宽：引用 PageLayout 的 --content-measure（≈70 汉字/行），再宽眼睛会跟丢行 */
+  $measure: var(--content-measure);
+
+  .about {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.25rem, 5vw, 3.25rem);
+    max-width: $measure;
+    // 与首页同理：在 main 内水平居中，避免剩余空间全堆在右侧
+    margin-inline: auto;
+    // main 已负责左右留白，这里只补纵向呼吸空间
+    padding-block: clamp(2.25rem, 6vw, 4rem);
+  }
+
+  /* ================= Section 与标题 ================= */
+  // 小节标题：accent 短横线 + 文字。比大字号标题更克制，靠留白建立层次
+  .about-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.15rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-primary);
+
+    &::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+    }
+  }
+
+  /* ================= 正文 ================= */
+  .about-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+
+    p {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.9;
+      color: var(--text-secondary);
+    }
+  }
+
+  /* 段首引导词：加粗 + 提亮，让「关于我」的分段一眼可辨 */
+  .about-text-lead {
+    font-weight: 600;
+    color: var(--text-primary);
+    // 中文加粗后紧接正文会挤在一起，留一点间隙
+    margin-right: 0.1em;
+  }
+
+  .about-paragraph {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--text-secondary);
+
+    &:last-child {
+      margin-bottom: 0;
     }
 
-    .home p {
-        margin-top: 14px;
+    a {
+      color: var(--accent);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  /* 技术标签：极轻的胶囊，只用来分组，不抢正文视线 */
+  .about-chip {
+    display: inline-block;
+    padding: 1px 10px;
+    font-size: 0.82rem;
+    line-height: 1.75;
+    border-radius: 999px;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  .about-inline-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* ================= 开源项目 ================= */
+  .about-projects {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .about-project {
+    padding-block: 1.15rem;
+    border-top: 1px solid var(--border-light);
+
+    &:first-child {
+      padding-top: 0;
+      border-top: none;
     }
 
-    .btn-row {
-        margin-top: 34px;
+    &:last-child {
+      padding-bottom: 0;
     }
+  }
+
+  .about-project-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .about-project-name {
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .about-project-lang {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+  }
+
+  .about-project-desc {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  .about-project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  /* ================= 联系我 ================= */
+  .about-contacts {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .about-contact {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-block: 0.6rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .about-contact-label {
+    flex: 0 0 auto;
+    min-width: 4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .about-contact-value {
+    font-size: 0.88rem;
+    // 邮箱较长时截断，不撑破容器
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ================= 收尾 ================= */
+  .about-closing {
+    margin: 0;
+    padding-top: clamp(1rem, 3vw, 1.75rem);
+    border-top: 1px solid var(--border-light);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  /* ================= 响应式 ================= */
+  @media (max-width: $breakpoint-sm) {
+    // 联系方式：账号值换行到下一行，避免被截断
+    .about-contact {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .about-contact-value {
+      width: 100%;
+      padding-left: 1.6rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about-project-name,
+    .about-project-link,
+    .about-contact {
+      transition: none;
+    }
+  }
 </style>
