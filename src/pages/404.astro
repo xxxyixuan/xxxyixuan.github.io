@@ -1,14 +1,14 @@
 ---
 import PageLayout from "@src/layouts/PageLayout.astro";
 
-const title: string = "404 - Page Not Found";
-const description: string = "The page you are looking for does not exist.";
+const title: string = "404 - 页面不存在";
+const description: string = "这个地址没有对应的内容，可能链接过期了，也可能是我还没写。";
 ---
 <PageLayout title={title} description={description}>
   <div class="hero">
     <div class="hero-content">
-      <h1 class="hero-title">Page Not Found</h1>
-      <p class="hero-tagline">This page isn’t in our solar system.</p>
+      <h1 class="hero-title">页面不存在</h1>
+      <p class="hero-tagline">这个地址没有对应的内容，可能链接过期了，也可能是我还没写。</p>
     </div>
   </div>
 </PageLayout>
@@ -50,14 +50,5 @@ const description: string = "The page you are looking for does not exist.";
         max-width: 40ch;
         margin-inline: auto;
         line-height: 1.5;
-    }
-
-    .start {
-        text-align: left;
-    }
-
-    .start .hero-title,
-    .start .hero-tagline {
-        margin-inline: 0;
     }
 </style>
