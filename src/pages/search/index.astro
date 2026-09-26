@@ -1,0 +1,410 @@
+---
+import PageLayout from '@layouts/PageLayout.astro'
+import Icon from '@components/Icon.astro'
+import {SITE_NAME} from '@src/config.ts'
+
+/* =================================================================
+   搜索页 —— 全文检索由 Pagefind 提供。
+   索引不是源码的一部分：`pnpm build` 会在 astro build 之后跑
+   pagefind 扫描 dist，生成 /pagefind/ 目录（索引分片 + 浏览器运行时），
+   本页再动态 import 它。因此 **dev 模式下搜索不可用**（没有索引产物），
+   要先 `pnpm build` 再 `pnpm preview` 才能看到效果。
+   Header 的搜索框（GET /search/?q=…）提交后落到这里。
+   ================================================================= */
+
+const pageTitle = `搜索 - ${SITE_NAME}`
+const pageDescription = '搜索逸瑄博客的全部文章：Pagefind 全文检索，覆盖标题与正文。'
+---
+
+<PageLayout title={pageTitle} description={pageDescription}>
+  <div class="search-page" data-pagefind-ignore>
+    <header class="page-head">
+      <h1 class="page-title">搜索</h1>
+      <p class="page-desc">输入关键词，全文检索文章的标题与正文。</p>
+    </header>
+
+    <form class="search-form" role="search" id="search-form">
+      <label class="search-box">
+        <Icon icon="search" size="16px" color="currentColor" />
+        <input
+          class="search-input"
+          id="search-input"
+          type="search"
+          name="q"
+          placeholder="搜索文章…"
+          autocomplete="off"
+          aria-label="搜索文章"
+        />
+      </label>
+      <button class="search-submit" type="submit">搜索</button>
+    </form>
+
+    <p class="search-status" id="search-status" role="status" aria-live="polite"></p>
+    <ul class="search-results" id="search-results"></ul>
+  </div>
+</PageLayout>
+
+<script is:inline type="module">
+  /* Pagefind 的运行时（/pagefind/pagefind.js）是构建产物，源码里并不存在，只能运行时动态 import。
+
+     ⚠️ 这里必须用 is:inline：普通 <script> 会被 Vite 打包，里面的动态 import
+     会被改写成 import(url, __VITE_PRELOAD__) 的形式，而 __VITE_PRELOAD__
+     在页面里根本没有定义 → 运行时 ReferenceError → 索引永远加载不出来
+     （实测踩过：页面一直显示「搜索索引尚未生成」）。
+     is:inline 让这段脚本原样输出到 HTML，绕开 Vite 的 import 分析管道。
+     代价：is:inline 不做转译，所以这里只能写纯 JS，不能用 TS 类型标注。
+
+     结果里 excerpt 已由 Pagefind 做过 HTML 实体编码且带 <mark> 高亮，
+     可以直接当 HTML 用；meta 里的字段是原始文本，必须自己转义。 */
+
+  const form = document.getElementById('search-form')
+  const input = document.getElementById('search-input')
+  const status = document.getElementById('search-status')
+  const list = document.getElementById('search-results')
+
+  /** 最多渲染多少条结果（Pagefind 的数据要逐条异步取，不宜一次全拉） */
+  const MAX_RESULTS = 20
+
+  let pagefind = null
+  let unavailable = false
+
+  const loadPagefind = async () => {
+    if (pagefind || unavailable) return pagefind
+    try {
+      const mod = await import('/pagefind/pagefind.js')
+      await mod.init()
+      pagefind = mod
+    } catch {
+      // dev 模式或没跑过构建时没有索引产物，标记为不可用
+      unavailable = true
+    }
+    return pagefind
+  }
+
+  const escapeHtml = (value) =>
+      value.replace(/[&<>"']/g, (char) => {
+        switch (char) {
+          case '&':
+            return '&amp;'
+          case '<':
+            return '&lt;'
+          case '>':
+            return '&gt;'
+          case '"':
+            return '&quot;'
+          default:
+            return '&#39;'
+        }
+      })
+
+  const renderItem = (item) => {
+    const tags = (item.meta.tags ?? '')
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+
+    return `
+    <li class="result">
+      <a class="result-link" href="${escapeHtml(item.url)}">
+        <div class="result-main">
+          <h2 class="result-title">${escapeHtml(item.meta.title ?? '未命名')}</h2>
+          <p class="result-excerpt">${item.excerpt}</p>
+          <div class="result-meta">
+            ${item.meta.date ? `<time>${escapeHtml(item.meta.date)}</time>` : ''}
+            ${tags.map((tag) => `<span class="result-tag">${escapeHtml(tag)}</span>`).join('')}
+          </div>
+        </div>
+        <span class="result-arrow" aria-hidden="true">→</span>
+      </a>
+    </li>
+  `
+  }
+
+  const run = async (raw) => {
+    if (!status || !list) return
+    const keyword = raw.trim()
+
+    if (!keyword) {
+      status.textContent = ''
+      list.innerHTML = ''
+      return
+    }
+
+    // 首次搜索要先下载并初始化 wasm 索引（几百毫秒），先给反馈，否则输入框像卡住了
+    if (!pagefind && !unavailable) status.textContent = '正在加载搜索索引…'
+
+    const pf = await loadPagefind()
+    if (!pf) {
+      status.textContent =
+          '搜索索引尚未生成。索引由 astro-pagefind 在构建时生成：先执行一次 pnpm build，之后 dev 与 preview 都能搜。'
+      list.innerHTML = ''
+      return
+    }
+
+    const search = await pf.search(keyword)
+    const total = search.results.length
+    const hits = await Promise.all(
+        search.results.slice(0, MAX_RESULTS).map((result) => result.data()),
+    )
+
+    status.textContent = total
+        ? `找到 ${total} 篇${total > MAX_RESULTS ? `，显示前 ${MAX_RESULTS} 篇` : ''}`
+        : `没有匹配「${keyword}」的文章`
+    list.innerHTML = hits.map(renderItem).join('')
+  }
+
+  const syncUrl = (q) => {
+    const url = q ? `${location.pathname}?q=${encodeURIComponent(q)}` : location.pathname
+    history.replaceState(null, '', url)
+  }
+
+  // 初始化：从 URL 的 ?q= 取初始关键词（Header 搜索框提交后就是这个形态）
+  const initial = new URLSearchParams(location.search).get('q') ?? ''
+  if (input) input.value = initial
+  if (initial) run(initial)
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault()
+    const q = input?.value.trim() ?? ''
+    syncUrl(q)
+    run(q)
+  })
+
+  // 输入即搜（200ms 防抖）
+  let timer
+  input?.addEventListener('input', () => {
+    clearTimeout(timer)
+    timer = window.setTimeout(() => {
+      const q = input.value.trim()
+      syncUrl(q)
+      run(q)
+    }, 200)
+  })
+</script>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  /* 内容宽度：列表 / 概览页用宽档（引用 PageLayout 的统一变量），并在 main 内居中 */
+  $measure: var(--content-wide);
+
+  .search-page {
+    max-width: $measure;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .page-head {
+    margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.6vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
+  .page-desc {
+    margin: 0.7rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  /* ================= 搜索框 ================= */
+  .search-form {
+    display: flex;
+    gap: 10px;
+  }
+
+  .search-box {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 14px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-muted);
+    cursor: text;
+    transition: border-color 0.2s ease,
+    color 0.2s ease;
+
+    &:focus-within {
+      border-color: var(--accent);
+      color: var(--text-secondary);
+    }
+  }
+
+  .search-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    line-height: 1;
+
+    &::placeholder {
+      color: var(--text-dimmed);
+    }
+
+    /* 收掉 search 类型输入框自带的清除叉，与 Header 搜索框保持一致 */
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  }
+
+  .search-submit {
+    flex: 0 0 auto;
+    height: 42px;
+    padding: 0 20px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--accent-border);
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.2s ease,
+    border-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent-hover);
+      border-color: var(--accent);
+    }
+  }
+
+  .search-status {
+    min-height: 1.6em;
+    margin: 1.25rem 0 0;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  /* ================= 结果列表 =================
+     结果由客户端脚本用 innerHTML 生成，元素上**没有** Astro 的 scoped 属性，
+     所以这一整块必须用 :global() 包住，否则样式会静默失效。 */
+  :global(.search-results) {
+    display: flex;
+    flex-direction: column;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :global(.result-link) {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 1.05rem;
+    border-top: 1px solid var(--border-light);
+    text-decoration: none;
+  }
+
+  :global(.result-link:hover .result-title),
+  :global(.result-link:focus-visible .result-title) {
+    color: var(--accent);
+  }
+
+  :global(.result-link:hover .result-arrow),
+  :global(.result-link:focus-visible .result-arrow) {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
+
+  :global(.result-main) {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  :global(.result-title) {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text-primary);
+    transition: color 0.2s ease;
+  }
+
+  :global(.result-excerpt) {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0.4rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  /* Pagefind 用 <mark> 标出摘要里命中的关键词 */
+  :global(.result-excerpt mark) {
+    padding: 0 2px;
+    border-radius: 2px;
+    color: var(--accent);
+    background: var(--accent-bg);
+  }
+
+  :global(.result-meta) {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  :global(.result-tag) {
+    padding: 1px 9px;
+    font-size: 0.72rem;
+    line-height: 1.7;
+    border-radius: 999px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  :global(.result-arrow) {
+    flex: 0 0 auto;
+    color: var(--text-dimmed);
+    transition: color 0.2s ease,
+    transform 0.2s ease;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .page-title {
+      font-size: 1.4rem;
+    }
+
+    /* 窄屏搜索按钮换成整行，输入区不至于被挤窄 */
+    .search-form {
+      flex-direction: column;
+    }
+
+    .search-submit {
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-box,
+    .search-submit,
+    :global(.result-title),
+    :global(.result-arrow) {
+      transition: none;
+    }
+  }
+</style>
