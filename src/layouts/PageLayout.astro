@@ -6,8 +6,8 @@ import '../styles/global.css'
 import {SITE_NAME, SITE_DESCRIPTION} from '../config'
 
 export interface Props {
-    title?: string
-    description?: string
+  title?: string
+  description?: string
 }
 
 const {title, description} = Astro.props
@@ -29,19 +29,19 @@ let sDesc = description || SITE_DESCRIPTION
     <meta name="description" content={sDesc} />
 
     <script is:inline>
-        /* 加载主题 */
-        (function () {
-            try {
-                const choice = localStorage.getItem('theme') || 'system'
-                const isDark =
-                    choice === 'dark' ||
-                    (choice === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      /* 加载主题 */
+      (function () {
+        try {
+          const choice = localStorage.getItem('theme') || 'system'
+          const isDark =
+              choice === 'dark' ||
+              (choice === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-                document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
-                document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
-            } catch (e) {
-            }
-        })()
+          document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light'
+        } catch (e) {
+        }
+      })()
     </script>
   </head>
   <body>
@@ -85,6 +85,13 @@ let sDesc = description || SITE_DESCRIPTION
     --layout-footer-h: auto;
 
     --radius-card: 8px;
+
+    /* 【内容区宽度】分两档，各页面按用途引用（都需配合 margin-inline: auto 才能居中）：
+       --content-measure : 长文阅读流（≈70 汉字/行）→ 文章详情、关于页
+       --content-wide    : 列表 / 概览页 → 首页、文章列表、标签、项目、搜索。
+                           比阅读流宽，避免与 header/footer 的 83rem 落差过大而两侧空荡 */
+    --content-measure: 46rem;
+    --content-wide: 64rem;
   }
 
   html {
@@ -111,8 +118,14 @@ let sDesc = description || SITE_DESCRIPTION
   main {
     flex: 1 1 auto;
     min-height: 0;
+    /* 限宽与 header-inner / footer-inner 用同一套机制：
+       width:100% 撑满 + max-width 封顶 + margin-inline:auto 居中，
+       这样三块内容区的左右边缘才能对齐。
+       （旧写法 margin-inline: clamp(5vw, 12%, 15vw) 是「固定边距」，
+        会让 main 比 header/footer 窄、左边缘也对不上。） */
+    width: 100%;
     max-width: var(--layout-max-width);
-    margin-inline: clamp(4rem, 10%, 12rem);
+    margin-inline: auto;
     padding: 0 var(--layout-pad-x);
   }
 
