@@ -1,0 +1,113 @@
+---
+import Icon from './Icon.astro'
+
+/**
+ * 区块标题：accent 短横线 + 标题（+ 可选副标题 + 可选右侧「查看全部」链接）
+ * 视觉规格与 /about 的节标保持一致，供首页 / 文章列表页 / 标签页复用。
+ */
+interface Props {
+  /** 标题文字 */
+  title: string
+  /** h2 的 id，供外层 <section aria-labelledby> 引用 */
+  titleId?: string
+  /** 副标题：一行说明这个区块是干什么的 */
+  sub?: string
+  /** 右侧链接的目标地址；不传则不渲染右侧链接 */
+  href?: string
+  linkText?: string
+}
+
+const {title, titleId, sub, href, linkText = '查看全部'} = Astro.props
+---
+
+<div class="section-heading">
+  <div class="section-heading-text">
+    <h2 class="section-title" id={titleId}>{title}</h2>
+    {sub && <p class="section-sub">{sub}</p>}
+  </div>
+  {
+      href && (
+      <a class="section-more" href={href}>
+        <span>{linkText}</span>
+        <Icon icon="arrow-right" size="14px" color="currentColor" />
+      </a>
+      )
+  }
+</div>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  .section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--layout-gap);
+    margin-bottom: 1.35rem;
+  }
+
+  .section-heading-text {
+    min-width: 0;
+  }
+
+  /* 节标题：accent 短横线 + 文字。横线用 ::before 画，不占左侧缩进 */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-primary);
+
+    &::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 1.1rem;
+      height: 2px;
+      border-radius: 1px;
+      background: var(--accent);
+    }
+  }
+
+  .section-sub {
+    margin: 0.4rem 0 0;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .section-more {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    /* 窄屏副标题与「查看全部」换行，避免互相挤压 */
+    .section-heading {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.7rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-more {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,203 @@
+---
+import Icon from './Icon.astro'
+
+/**
+ * 文章条目的统一数据形状。
+ * 首页、文章列表页、标签页都把内容集合的条目映射成它再交给本组件渲染。
+ */
+export interface PostCard {
+  /** 唯一标识（内容集合里就是文件名），用作 key */
+  id: string
+  title: string
+  /** 文章详情页地址 */
+  href: string
+  /** 展示用日期，形如 2026-09-12 */
+  date: string
+  /** <time datetime> 用的 ISO 字符串 */
+  datetime: string
+  excerpt: string
+  tags: string[]
+  /** 预计阅读时长（分钟）；没有正文时省略 */
+  minutes?: number
+  wordCount?: number
+}
+
+/**
+ * 单条文章。两种形态：
+ * - featured：头条，大标题 + 摘要 + 日期/时长/标签
+ * - default：列表项，标题 + 日期/标签 + 右侧箭头
+ */
+interface Props {
+  post: PostCard
+  variant?: 'featured' | 'default'
+}
+
+const {post, variant = 'default'} = Astro.props
+const isFeatured = variant === 'featured'
+---
+
+<a class:list={['post', isFeatured ? 'post-featured' : 'post-default']} href={post.href}>
+  <div class="post-main">
+    <h3 class="post-title">{post.title}</h3>
+    {isFeatured && post.excerpt && <p class="post-excerpt">{post.excerpt}</p>}
+    <div class="post-meta">
+      <time class="post-date" datetime={post.datetime}>{post.date}</time>
+      {
+          isFeatured && post.minutes && (
+          <span>
+                  <span aria-hidden="true"> · </span>
+                  <span>{post.wordCount} 字</span>
+                  <span aria-hidden="true"> · </span>
+                  <span>{post.minutes} 分钟</span>
+                </span>
+          )
+      }
+      {
+          post.tags.length > 0 && (
+          <span class="post-tags">
+            {post.tags.map((tag) => (
+              <span class="post-tag">{tag}</span>
+            ))}
+          </span>
+          )
+      }
+    </div>
+  </div>
+  {
+      !isFeatured && (
+      <span class="post-arrow">
+        <Icon icon="arrow-right" size="16px" color="currentColor" />
+      </span>
+      )
+  }
+</a>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  .post {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .post-main {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .post-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.55;
+    color: var(--text-primary);
+    transition: color 0.2s ease;
+  }
+
+  /* ================= 头条 ================= */
+  /* 头条不画分隔线，由下方第一条列表项的 border-top 承担分隔职责 */
+  .post-featured {
+    padding-bottom: 1.4rem;
+
+    .post-title {
+      font-size: clamp(1.15rem, 2.6vw, 1.35rem);
+      line-height: 1.45;
+    }
+
+    &:hover .post-title,
+    &:focus-visible .post-title {
+      color: var(--accent);
+    }
+  }
+
+  .post-excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0.6rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.85;
+    color: var(--text-secondary);
+  }
+
+  /* ================= 列表项 ================= */
+  .post-default {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 1.05rem;
+    border-top: 1px solid var(--border-light);
+
+    &:hover .post-title,
+    &:focus-visible .post-title {
+      color: var(--accent);
+    }
+
+    &:hover .post-arrow,
+    &:focus-visible .post-arrow {
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+  }
+
+  .post-arrow {
+    flex: 0 0 auto;
+    display: inline-flex;
+    color: var(--text-dimmed);
+    transition: color 0.2s ease,
+    transform 0.2s ease;
+  }
+
+  /* ================= 元信息 ================= */
+  .post-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .post-sep {
+    color: var(--text-dimmed);
+  }
+
+  .post-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* 标签：极轻胶囊，只做归类不抢视线（与 /about 的 .about-chip 同规格） */
+  .post-tag {
+    padding: 1px 9px;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    border-radius: 999px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .post-default {
+      gap: 0.75rem;
+    }
+
+    .post-featured .post-title {
+      font-size: 1.1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post-title,
+    .post-arrow {
+      transition: none;
+    }
+  }
+</style>
