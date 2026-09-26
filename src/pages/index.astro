@@ -1,23 +1,192 @@
 ---
-import PageLayout from '../layouts/PageLayout.astro'
-import {SITE_DESCRIPTION, SITE_NAME} from '../config.ts'
+import PageLayout from '@layouts/PageLayout.astro'
+import SectionHeading from '@components/SectionHeading.astro'
+import PostListItem from '@components/PostListItem.astro'
+import type {PostCard} from '@components/PostListItem.astro'
+import Icon from '@components/Icon.astro'
+import {getSortedPosts, toCard} from '@src/utils/posts.ts'
+import {MY_NAME_EN, SITE_DESCRIPTION, SITE_NAME} from '@src/config.ts'
+
+/* =================================================================
+   首页 —— Showcase 调研中的「类型二：介绍 + 文章列表」范式
+   区块：S1 站点介绍 → S2 最新发布
+   导航 / 页脚 / 主题由 PageLayout 提供，本页只负责 main 里的内容
+   ================================================================= */
+
+/** 首页「最新发布」最多展示的文章条数：头条 1 篇 + 列表 4 篇 */
+const LATEST_COUNT = 5
+
+/** 站点关键信息：我是谁 / 在折腾什么 / 你会看到什么 —— 纯静态文案，改这里即可 */
+const siteFacts = [
+  {label: '我在写', value: '技术笔记 · 生活随笔'},
+  {label: '在折腾', value: 'Rust · 全栈开发 · 静态站点'},
+  {label: '你会看到', value: '踩坑复盘 · 原理思考 · 能照着做的教程'},
+]
+
+/* 阅读时长 / 日期格式 / PostCard 映射统一在 @src/utils/posts.ts */
+
+// 真实文章按发布日期倒序，转成卡片数据后只取前 LATEST_COUNT 篇
+const posts: PostCard[] = (await getSortedPosts()).map(toCard).slice(0, LATEST_COUNT)
 ---
 
 <PageLayout title={`${SITE_NAME} - 写下来才算真学会`} description={SITE_DESCRIPTION}>
-home
+  <div class="home">
+    <!-- ============ S1 站点介绍 ============ -->
+    <section class="intro" aria-labelledby="intro-title">
+      <h1 class="intro-title" id="intro-title">欢迎来到 {MY_NAME_EN}</h1>
+      <p class="intro-desc">
+        你好！我是逸瑄。这里记下我学习路上的踩坑复盘和原理思考，写能照着做出来的教程，
+        也留一些生活里的随笔。
+      </p>
+
+      <dl class="intro-facts">
+        {
+          siteFacts.map((fact) => (
+            <div class="intro-fact">
+              <dt class="intro-fact-label">{fact.label}</dt>
+              <dd class="intro-fact-value">{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <!-- ============ S2 最新发布 ============ -->
+    <section class="posts" aria-labelledby="posts-title">
+      <SectionHeading
+        title="最新发布"
+        titleId="posts-title"
+        href={posts.length > 0 ? '/posts/' : undefined}
+        linkText="全部文章"
+      />
+      {
+        // 限制展示条数为 5 条
+
+        posts.length === 0 ? (
+          <p class="posts-empty">
+            还没写东西。想先认识我的话，去<a href="/about/">关于页</a>看看。
+          </p>
+        ) : (
+          <>
+            <div class="posts-list">
+              {posts.slice(0, 6).map((post) => (
+                <PostListItem post={post} variant="featured" />
+              ))}
+            </div>
+          </>
+        )
+      }
+    </section>
+  </div>
 </PageLayout>
 
-<style>
-    .home {
-        padding: clamp(56px, 8vw, 104px) 24px;
-        text-align: center;
-    }
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px */
+  $breakpoint-md: 768px;
 
-    .home p {
-        margin-top: 14px;
-    }
+  /* 内容宽度：首页属于列表 / 概览页，用宽档（引用 PageLayout 的统一变量） */
+  $measure: var(--content-wide);
 
-    .btn-row {
-        margin-top: 34px;
+  .home {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.75rem, 6vw, 4rem);
+    max-width: $measure;
+    /* 在 main 内水平居中：块级元素被 max-width 限宽后默认靠左，
+       剩余空间会全堆在右侧 —— 必须用 margin-inline: auto 平分到两边 */
+    margin-inline: auto;
+    // main 已负责左右留白，这里只补纵向呼吸空间
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  /* ================= S1 站点介绍 ================= */
+  .intro-identity {
+    margin: 0;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
+  }
+
+  .intro-title {
+    margin: 0.85rem 0 0;
+    font-size: clamp(1.6rem, 4.4vw, 2.2rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
+  .intro-desc {
+    margin: 1.1rem 0 0;
+    font-size: 0.95rem;
+    line-height: 1.95;
+    color: var(--text-secondary);
+  }
+
+  /* 关键信息：label + value 两列，与 /about 的技术栈行同一规格 */
+  .intro-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    margin: 2.25rem 0 0;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--border-light);
+  }
+
+  .intro-fact {
+    display: grid;
+    /* 列宽按最长 label「你会看到」（4 字 × 0.85rem）留够，避免换行或挤压 */
+    grid-template-columns: 4.5rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+    margin: 0;
+  }
+
+  .intro-fact-label {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .intro-fact-value {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  /* ================= S2 最新发布 ================= */
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .posts-empty {
+    margin: 0;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+
+      &:hover,
+      &:focus-visible {
+        text-decoration: underline;
+      }
     }
+  }
+
+  /* ================= 响应式 ================= */
+  @media (max-width: $breakpoint-md) {
+    /* 关键信息在窄屏改成上下两行，避免标签列被挤成竖排 */
+    .intro-fact {
+      grid-template-columns: 1fr;
+      gap: 0.3rem;
+    }
+  }
+
 </style>
