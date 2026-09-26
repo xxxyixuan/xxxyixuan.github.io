@@ -1,0 +1,118 @@
+---
+import PageLayout from '@layouts/PageLayout.astro'
+import PostListItem from '@components/PostListItem.astro'
+import type {PostCard} from '@components/PostListItem.astro'
+import Icon from '@components/Icon.astro'
+import {collectTags, filterByTag, getSortedPosts, toCard} from '@src/utils/posts.ts'
+import {SITE_NAME} from '@src/config.ts'
+
+/* =================================================================
+   单个标签下的文章列表 —— 每个标签生成一个静态路由 /tags/<tag>/
+   ================================================================= */
+
+export async function getStaticPaths() {
+  const cards = (await getSortedPosts()).map(toCard)
+  return collectTags(cards).map(({tag}) => ({
+    params: {tag},
+    props: {tag, posts: filterByTag(cards, tag)},
+  }))
+}
+
+interface Props {
+  tag: string
+  posts: PostCard[]
+}
+
+const {tag, posts} = Astro.props
+const pageTitle = `${tag} - 标签 - ${SITE_NAME}`
+const pageDescription = `逸瑄博客中带有「${tag}」标签的全部文章。`
+---
+
+<PageLayout title={pageTitle} description={pageDescription}>
+  <div class="tag-page">
+    <a class="back" href="/tags/">
+      <Icon icon="arrow-left" size="14px" color="currentColor" />
+      <span>全部标签</span>
+    </a>
+
+    <header class="page-head">
+      <h1 class="page-title">{tag}</h1>
+      <p class="page-desc">该标签下共 {posts.length} 篇文章。</p>
+    </header>
+
+    <div class="post-list">
+      {
+        posts.map((post) => (
+          <PostListItem post={post} />
+        ))
+      }
+    </div>
+  </div>
+</PageLayout>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  /* 内容宽度：列表 / 概览页用宽档（引用 PageLayout 的统一变量），并在 main 内居中 */
+  $measure: var(--content-wide);
+
+  .tag-page {
+    max-width: $measure;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.83rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+    }
+  }
+
+  .page-head {
+    margin: 1.1rem 0 clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.6vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
+  .page-desc {
+    margin: 0.7rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .page-title {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back {
+      transition: none;
+    }
+  }
+</style>

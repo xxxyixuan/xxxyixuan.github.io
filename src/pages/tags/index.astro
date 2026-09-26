@@ -1,0 +1,147 @@
+---
+import PageLayout from '@layouts/PageLayout.astro'
+import {collectTags, getSortedPosts, toCard} from '@src/utils/posts.ts'
+import {SITE_NAME} from '@src/config.ts'
+
+/* =================================================================
+   标签总览 —— 列出全部标签与各自的文章数，点进 /tags/<tag>/
+   ================================================================= */
+
+const pageTitle = `标签 - ${SITE_NAME}`
+const pageDescription = '按主题浏览逸瑄博客的全部文章。'
+
+const posts = (await getSortedPosts()).map(toCard)
+const tags = collectTags(posts)
+---
+
+<PageLayout title={pageTitle} description={pageDescription}>
+  <div class="tags-page">
+    <header class="page-head">
+      <h1 class="page-title">标签</h1>
+      <p class="page-desc">按主题浏览，目前共 {tags.length} 个标签。</p>
+    </header>
+
+    {
+      tags.length === 0 ? (
+        <p class="empty">
+          还没有标签。等有了第一篇文章，这里会自动按主题归类。
+        </p>
+      ) : (
+        <ul class="tag-list">
+          {tags.map(({tag, count}) => (
+            <li>
+              <a class="tag-chip" href={`/tags/${tag}/`}>
+                <span class="tag-name">{tag}</span>
+                <span class="tag-count">{count}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</PageLayout>
+
+<style lang="scss">
+  /* 断点约定值以 PageLayout :root 的注释为准：md = 768px，sm = 480px */
+  $breakpoint-sm: 480px;
+
+  /* 内容宽度：列表 / 概览页用宽档（引用 PageLayout 的统一变量），并在 main 内居中 */
+  $measure: var(--content-wide);
+
+  .tags-page {
+    max-width: $measure;
+    margin-inline: auto;
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .page-head {
+    margin-bottom: clamp(2rem, 5vw, 2.75rem);
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.6vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    color: var(--text-primary);
+  }
+
+  .page-desc {
+    margin: 0.7rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  /* ================= 标签列表 ================= */
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* 标签胶囊：与 /about 的 chip 同一套轻量视觉，带一个文章计数 */
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    text-decoration: none;
+    transition: color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--accent);
+      border-color: var(--accent-border);
+      background: var(--accent-bg);
+    }
+  }
+
+  .tag-name {
+    font-weight: 500;
+  }
+
+  .tag-count {
+    font-size: 0.75rem;
+    color: var(--text-dimmed);
+  }
+
+  .tag-chip:hover .tag-count,
+  .tag-chip:focus-visible .tag-count {
+    color: var(--accent);
+  }
+
+  /* ================= 空状态 ================= */
+  .empty {
+    margin: 0;
+    padding: 2rem 0;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    .page-title {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tag-chip {
+      transition: none;
+    }
+  }
+</style>
