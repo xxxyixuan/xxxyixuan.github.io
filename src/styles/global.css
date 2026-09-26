@@ -194,32 +194,6 @@ body {
     margin: 1em 0;
 }
 
-/* Copy code button */
-.copy-code-btn {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    padding: 2px 10px;
-    font-size: 12px;
-    line-height: 1.6;
-    color: var(--text-muted);
-    background: var(--bg-page);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.prose pre:hover .copy-code-btn {
-    opacity: 1;
-}
-
-.copy-code-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-}
-
 /* Mobile responsive prose */
 @media (max-width: 640px) {
     .prose pre {
