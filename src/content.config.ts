@@ -5,8 +5,8 @@ import {glob} from 'astro/loaders'
 /**
  * 文章集合
  *
- * 内容目录指向项目根目录的 contents/posts/（与 src 平级，方便把写作素材
- * 和站点代码分开管理）。文件名即 URL 片段：
+ * 内容目录指向项目根目录的 contents/posts/（与 src 平级，写作素材与站点代码
+ * 在目录上分开，随站点仓库一起提交）。文件名即 URL 片段：
  *   contents/posts/astro-notes.md  →  /posts/astro-notes/
  */
 const posts = defineCollection({
