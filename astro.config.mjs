@@ -6,7 +6,7 @@ import pagefind from 'astro-pagefind'
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://xxxyixuan.github.io',
+  site: 'http://www.wangyuhang.net',
   // 将来页面变多、需要复用 CSS 缓存时可改回 'auto'。
   build: {
     inlineStylesheets: 'always',
