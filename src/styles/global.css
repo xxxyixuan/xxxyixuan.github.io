@@ -106,6 +106,7 @@ body {
 .prose li {
     margin-bottom: 0.4em;
     line-height: 1.75;
+    list-style-type: disc;
 }
 
 .prose code {

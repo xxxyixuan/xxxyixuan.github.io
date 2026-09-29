@@ -16,7 +16,7 @@ export default defineConfig({
   },
   markdown: {
     shikiConfig: {
-      themes: {light: 'github-light', dark: 'github-dark'},
+      themes: {light: 'material-theme-lighter', dark: 'material-theme-darker'},
     },
   },
   integrations: [pagefind({indexConfig: {forceLanguage: 'zh-cn'}})],
