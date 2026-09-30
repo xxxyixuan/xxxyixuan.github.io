@@ -18,7 +18,7 @@
 - **框架**：Astro 7（静态输出）
 - **样式**：Tailwind CSS 4（只用到 preflight）+ `<style lang="scss">`（Sass）
 - **内容**：Content Collections + glob loader；正文放 `contents/posts/`，配图放 `public/images/posts/`（都在本仓库）
-- **代码高亮**：Shiki 双主题（`github-light` / `github-dark`，跟随站点亮暗主题）
+- **代码高亮**：Shiki 双主题（`material-theme-lighter` / `material-theme-darker`，跟随站点亮暗主题）
 - **搜索**：Pagefind（`astro-pagefind` 集成，构建期自动建索引，中文分词）
 - **包管理**：pnpm
 - **部署**：Cloudflare Workers（`yixuan-blog`）· 推送 `main` 自动构建部署
@@ -32,6 +32,22 @@
 
 文章文件名即 URL 片段：`contents/posts/astro-intro.md` → `/posts/astro-intro/`。
 slug 用**英文小写 + 短横线**，文件名不要带空格和中文。
+
+正文格式支持 `.md` 与 `.mdx` 两种，frontmatter 完全一致。`.mdx` 额外可用组件与 JSX 表达式：
+
+```mdx
+import Icon from '../../src/components/Icon.astro'
+
+export const marker = '可以插进正文的变量'
+
+<Icon icon="arrow-left" size="14px" color="currentColor" />
+
+正文里这样取值：{marker}，表达式也行：{2 ** 5}
+```
+
+⚠️ 同一目录下**不能有同名的 `.md` 与 `.mdx`**（去掉后缀会得到同一个 id，构建报错）。
+⚠️ `contents/` 同时是 Obsidian vault，而 Obsidian 不认 `.mdx` —— 写 `.mdx` 文章请用 VS Code
+（装官方 MDX 扩展），Obsidian 里那些文件只会显示成普通文本。
 
 内容提交统一用 `content:` 前缀（如 `content: 新增开站文`），站点代码用 `feat:` / `fix:` / `docs:` 等 ——
 这样 `git log -- src/` 只看站点开发记录时，历史一目了然。

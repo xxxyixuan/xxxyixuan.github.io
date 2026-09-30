@@ -10,7 +10,7 @@ import {glob} from 'astro/loaders'
  *   contents/posts/astro-notes.md  →  /posts/astro-notes/
  */
 const posts = defineCollection({
-  loader: glob({pattern: '**/*.md', base: './contents/posts'}),
+  loader: glob({pattern: '**/*.{md,mdx}', base: './contents/posts'}),
   schema: z.object({
     title: z.string(),
     /** 发布日期：写字符串也会被自动转成 Date */

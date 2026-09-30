@@ -17,6 +17,8 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.3",
+    "reading-time": "^1.5.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3"
   },
   "allowScripts": {
@@ -24,10 +26,12 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@astrojs/mdx": "^8.0.2",
     "astro-pagefind": "^2.0.1",
     "prettier": "3.9.8",
     "prettier-plugin-astro": "1.0.1",
     "sass": "^1.104.1",
+    "shiki": "^4.4.3",
     "typescript": "^5.9.3",
     "wrangler": "^4.140.0"
   }
