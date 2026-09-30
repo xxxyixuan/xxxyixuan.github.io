@@ -3,7 +3,8 @@
   // Cloudflare Worker：yixuan-blog（纯静态资源托管，托管 astro build 产物 dist/）
   "name": "yixuan-blog",
   "compatibility_date": "2026-09-23",
-  "workers_dev": true,
+  "workers_dev": false,
+  "preview_urls": false,
   "assets": {
     "directory": "./dist",
     // 未匹配到静态文件时，返回 dist/404.html（Astro 生成的 404 页面）
