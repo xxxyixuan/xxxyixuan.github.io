@@ -4,7 +4,8 @@ import PageLayout from "@src/layouts/PageLayout.astro";
 const title: string = "404 - 页面不存在";
 const description: string = "这个地址没有对应的内容，可能链接过期了，也可能是我还没写。";
 ---
-<PageLayout title={title} description={description}>
+<!-- 错误页不该进索引：noindex 明确告诉搜索引擎别收录 -->
+<PageLayout title={title} description={description} noindex>
   <div class="hero">
     <div class="hero-content">
       <h1 class="hero-title">页面不存在</h1>

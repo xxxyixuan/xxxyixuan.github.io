@@ -16,7 +16,8 @@ const pageTitle = `搜索 - ${SITE_NAME}`
 const pageDescription = '搜索逸瑄博客的全部文章：Pagefind 全文检索，覆盖标题与正文。'
 ---
 
-<PageLayout title={pageTitle} description={pageDescription}>
+// noindex：搜索结果由客户端渲染，HTML 里没有正文；被收录只会产生一堆空壳页面
+<PageLayout title={pageTitle} description={pageDescription} noindex>
   <div class="search-page" data-pagefind-ignore>
     <header class="page-head">
       <h1 class="page-title">搜索</h1>

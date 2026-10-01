@@ -5,7 +5,8 @@ import PostListItem from '@components/PostListItem.astro'
 import type {PostCard} from '@components/PostListItem.astro'
 import Icon from '@components/Icon.astro'
 import {getSortedPosts, toCard} from '@src/utils/posts.ts'
-import {MY_NAME_EN, SITE_DESCRIPTION, SITE_NAME} from '@src/config.ts'
+import {MY_NAME_EN, MY_NAME_ZH, SITE_DESCRIPTION, SITE_NAME} from '@src/config.ts'
+import {SOCIAL_LINKS} from '@src/data/site.ts'
 
 /* =================================================================
    首页 —— Showcase 调研中的「类型二：介绍 + 文章列表」范式
@@ -27,9 +28,37 @@ const siteFacts = [
 
 // 真实文章按发布日期倒序，转成卡片数据后只取前 LATEST_COUNT 篇
 const posts: PostCard[] = (await getSortedPosts()).map(toCard).slice(0, LATEST_COUNT)
+
+/* 结构化数据：WebSite 交代站点身份，Person 把「逸瑄」这个名字与各平台账号
+   串起来（sameAs），有助于搜索引擎做实体识别 */
+const origin = (Astro.site ?? Astro.url).origin
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: `${SITE_NAME}的博客`,
+    alternateName: '写下来才算真学会',
+    url: `${origin}/`,
+    description: SITE_DESCRIPTION,
+    inLanguage: 'zh-CN',
+    author: {'@type': 'Person', name: MY_NAME_ZH, url: `${origin}/about/`},
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: MY_NAME_ZH,
+    alternateName: MY_NAME_EN,
+    url: `${origin}/about/`,
+    sameAs: SOCIAL_LINKS.filter((link) => link.href.startsWith('http')).map((link) => link.href),
+  },
+]
 ---
 
-<PageLayout title={`${SITE_NAME} - 写下来才算真学会`} description={SITE_DESCRIPTION}>
+<PageLayout
+  title={`${SITE_NAME}的博客 - 写下来才算真学会`}
+  description={SITE_DESCRIPTION}
+  jsonLd={jsonLd}
+>
   <div class="home">
     <!-- ============ S1 站点介绍 ============ -->
     <section class="intro" aria-labelledby="intro-title">
