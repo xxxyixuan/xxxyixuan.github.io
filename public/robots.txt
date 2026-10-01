@@ -1,0 +1,16 @@
+# robots.txt —— 站点对搜索引擎抓取的全部声明
+# 由 public/ 原样复制到 dist/ 根目录，地址：https://www.wangyuhang.net/robots.txt
+
+# 允许抓取整站（不加任何 User-agent 特例：全站没有需要区别对待的爬虫）
+User-agent: *
+Allow: /
+
+# 搜索页是纯客户端检索页，HTML 里没有正文内容，收录了也是空壳；
+# 抓它只会白白消耗抓取预算
+Disallow: /search/
+
+# Pagefind 的索引分片（.js / .wasm / .json），不是可索引的网页
+Disallow: /pagefind/
+
+# 站点地图：@astrojs/sitemap 在构建时生成 sitemap-index.xml（分片入口）
+Sitemap: https://www.wangyuhang.net/sitemap-index.xml
