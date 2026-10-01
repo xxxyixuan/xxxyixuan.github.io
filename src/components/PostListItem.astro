@@ -30,15 +30,22 @@ export interface PostCard {
 interface Props {
   post: PostCard
   variant?: 'featured' | 'default'
+  /**
+   * 标题使用的标签层级。首页 / 文章列表页上方已有区块标题（h2），故默认 h3；
+   * 标签详情页的 h1 下面直接就是列表，传 2 才不会出现 h1 → h3 的跳级。
+   */
+  headingLevel?: 2 | 3
 }
 
-const {post, variant = 'default'} = Astro.props
+const {post, variant = 'default', headingLevel = 3} = Astro.props
 const isFeatured = variant === 'featured'
+// 大写开头的变量在 Astro 里会被当作动态标签渲染
+const Heading = `h${headingLevel}`
 ---
 
 <a class:list={['post', isFeatured ? 'post-featured' : 'post-default']} href={post.href}>
   <div class="post-main">
-    <h3 class="post-title">{post.title}</h3>
+    <Heading class="post-title">{post.title}</Heading>
     {isFeatured && post.excerpt && <p class="post-excerpt">{post.excerpt}</p>}
     <div class="post-meta">
       <time class="post-date" datetime={post.datetime}>{post.date}</time>

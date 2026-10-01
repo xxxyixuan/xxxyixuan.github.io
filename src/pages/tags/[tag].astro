@@ -43,7 +43,7 @@ const pageDescription = `逸瑄博客中带有「${tag}」标签的全部文章�
     <div class="post-list">
       {
         posts.map((post) => (
-          <PostListItem post={post} />
+          <PostListItem post={post} headingLevel={2} />
         ))
       }
     </div>

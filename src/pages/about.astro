@@ -5,7 +5,7 @@ import {MY_NAME_EN, MY_NAME_ZH, SITE_NAME} from '@src/config.ts'
 import {ABOUT_SOCIAL_LINKS} from '@src/data/site.ts'
 import {projects} from '@src/data/projects.ts'
 
-const pageTitle: string = `关于 - ${SITE_NAME}`
+const pageTitle: string = `关于我 - ${SITE_NAME}`
 const pageDescription: string = `关于 ${MY_NAME_ZH}（${MY_NAME_EN}）：Rust 爱好者，喜欢探索新的技术与工具 —— 在这里记录学习路上的见解与笔记，写能照着做出来的教程，也记一些生活里的琐碎点滴。`
 
 /** 开源项目：数据在 @src/data/projects.ts，与 /projects 页共用同一份 */
@@ -25,8 +25,9 @@ const siteBuild = [
 
 
     <!-- ============ 关于我 ============ -->
+    <!-- 本页的 h1：此前整页只有 h2，缺了页面主标题，搜索引擎拿不到「这页讲什么」 -->
     <section class="about-section">
-      <h2 class="about-section-title">关于我</h2>
+      <h1 class="about-section-title">关于我</h1>
       <div class="about-text">
         <p class="about-paragraph">嘿，我是 <strong class="about-text-lead">{MY_NAME_ZH}（{MY_NAME_EN}）</strong>，一名 Rust
           爱好者。</p>
