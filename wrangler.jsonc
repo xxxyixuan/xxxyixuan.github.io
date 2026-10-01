@@ -9,5 +9,12 @@
     "directory": "./dist",
     // 未匹配到静态文件时，返回 dist/404.html（Astro 生成的 404 页面）
     "not_found_handling": "404-page"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "persist": true
+    }
   }
 }
