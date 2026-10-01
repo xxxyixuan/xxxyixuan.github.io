@@ -8,12 +8,40 @@ import {SITE_NAME, SITE_DESCRIPTION} from '../config'
 export interface Props {
   title?: string
   description?: string
+  /** 覆盖 canonical 地址；默认按当前路径自动推导，通常不用传 */
+  canonical?: string
+  /** 社交分享缩略图（站内路径或完整地址），默认用头像兜底 */
+  image?: string
+  /** og:type：文章详情页传 'article'，其余保持 'website' */
+  type?: 'website' | 'article'
+  /** 置 true 输出 noindex：搜索页、404 这类不该被收录的页面用 */
+  noindex?: boolean
+  /** 结构化数据（JSON-LD）：单个对象或对象数组 */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[]
 }
 
-const {title, description} = Astro.props
+const {
+  title,
+  description,
+  canonical,
+  image = '/avatar.png',
+  type = 'website',
+  noindex = false,
+  jsonLd,
+} = Astro.props
 
 let sTitle = title || SITE_NAME
 let sDesc = description || SITE_DESCRIPTION
+
+/* canonical 只取 pathname —— Astro.url 不含查询串，避免 /search/?q=xxx
+   这类带参地址被搜索引擎当成另一个页面。尾斜杠与 Astro 的路由形态一致
+   （构建产物是 <path>/index.html），因此和 sitemap 里的地址能对上。 */
+const site = Astro.site ?? Astro.url
+const canonicalURL = new URL(canonical ?? Astro.url.pathname, site).href
+const ogImageURL = new URL(image, site).href
+
+/* 统一包成数组渲染，页面传单个对象时也不用改调用方 */
+const jsonLdItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
 ---
 
 <html lang="zh-CN" data-theme="dark">
@@ -32,10 +60,35 @@ let sDesc = description || SITE_DESCRIPTION
       href={new URL('/rss.xml', Astro.site ?? Astro.url)}
     />
     <!-- page meta -->
-    <title>{sTitle || SITE_NAME}</title>
-    <meta name="title" content={sTitle || SITE_NAME} />
+    <title>{sTitle}</title>
     <meta name="description" content={sDesc} />
+    <!-- canonical：同一份内容可能从多个域名访问（www / blog 子域 / GitHub Pages
+         副本），统一声明主地址，避免搜索引擎把副本当成重复内容 -->
+    <link rel="canonical" href={canonicalURL} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
 
+    <!-- Open Graph / Twitter：社交平台分享卡片，也是部分搜索引擎的摘要来源 -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content={sTitle} />
+    <meta property="og:description" content={sDesc} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={sTitle} />
+    <meta name="twitter:description" content={sDesc} />
+    <meta name="twitter:image" content={ogImageURL} />
+
+    <!-- 结构化数据：JSON-LD 里出现 </script> 会提前闭合脚本，故把 < 转成 \u003c -->
+    {
+      jsonLdItems.map((item) => (
+        <script
+          type="application/ld+json"
+          set:html={JSON.stringify(item).replace(/</g, '\\u003c')}
+        />
+      ))
+    }
     <script is:inline>
       /* 加载主题 */
       (function () {
