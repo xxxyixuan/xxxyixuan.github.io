@@ -153,6 +153,9 @@ body {
     background: var(--blockquote-bg);
     border-radius: 0 6px 6px 0;
 }
+.prose>blockquote p {
+    margin: 0.5rem 0;
+}
 
 .prose table {
     width: 100%;
