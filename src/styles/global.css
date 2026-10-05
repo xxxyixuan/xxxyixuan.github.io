@@ -88,6 +88,10 @@ body {
     margin-bottom: 1em;
 }
 
+.prose strong {
+    color: color-mix(in srgb, var(--text-secondary), var(--text-primary) 50%);
+}
+
 .prose a {
     color: var(--accent);
     text-decoration: none;
@@ -135,6 +139,19 @@ body {
     border: none;
 }
 
+:root {
+    /* placeholder variables for shiki */
+    --shiki-dark: ;
+    --shiki-dark-bg: ;
+    --shiki-dark-font-style: ;
+    --shiki-dark-font-weight: ;
+    --shiki-dark-text-decoration: ;
+}
+
+.astro-code {
+    margin-bottom: 0.5rem;
+}
+
 .astro-code,
 .astro-code span {
     color: var(--shiki-dark) !important;
@@ -153,7 +170,8 @@ body {
     background: var(--blockquote-bg);
     border-radius: 0 6px 6px 0;
 }
-.prose>blockquote p {
+
+.prose > blockquote p {
     margin: 0.5rem 0;
 }
 
