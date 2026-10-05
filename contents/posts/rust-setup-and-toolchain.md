@@ -10,8 +10,7 @@ draft: false
 
 ## 0x01 先说清楚：这门语言在解决什么问题
 
-我写过不少 Rust 代码。最早用 Java 开发的时候，我总觉得它有点繁琐，于是一直想找一门更顺手的语言，直到遇见
-Rust，才算安定下来。后来基于它做了不少项目，但有很长一段时间，我都没认真想过一个问题：这门语言到底是为解决什么问题而生的。
+我写过不少 Rust 代码。最早用 Java 开发的时候，我总觉得它有点繁琐，于是一直想找一门更顺手的语言，直到遇见 Rust，才算安定下来。后来基于它做了不少项目，但有很长一段时间，我都没认真想过一个问题：这门语言到底是为解决什么问题而生的。
 
 如今大家愈发重视内存安全与程序性能，Rust 受到广泛的关注。作为一门系统编程语言，Rust 同时兼顾**安全、性能、并发**三大特性。
 
@@ -25,8 +24,8 @@ Rust 不依赖垃圾回收，自然就没有 GC 停顿。内存什么时候释�
 
 ## 0x02 安装：从 rustup 开始
 
-装 Rust 不建议走系统自带的包管理器。`apt`、`brew` 里的版本往往滞后，以后想切换工具链也麻烦。官方的方案是 rustup，一个专门管理
-Rust 工具链的安装器，以后的升级、降级、版本切换都靠它。
+装 Rust 不建议走系统自带的包管理器。`apt`、
+`brew` 里的版本往往滞后，以后想切换工具链也麻烦。官方的方案是 rustup，一个专门管理 Rust 工具链的安装器，以后的升级、降级、版本切换都靠它。
 
 ### Linux/macOS 安装
 
@@ -46,8 +45,7 @@ Windows 下就没有"一行命令"
 
 **第一步：安装 MSVC 生成工具**
 
-先[下载 Visual Studio](https://visualstudio.microsoft.com/zh-hans/downloads/)，已经装过的可以跳过这一步。装好后打开 Visual
-Studio Installer：
+先[下载 Visual Studio](https://visualstudio.microsoft.com/zh-hans/downloads/)，已经装过的可以跳过这一步。装好后打开 Visual Studio Installer：
 
 ![rust-01-vs_installer](../images/rust-01-01-vs_installer.png)
 
@@ -132,8 +130,8 @@ rustup 装下来的不只是一个编译器，而是一整套工具。先搞清�
 
 **`rustfmt`**：代码格式化。团队开发神器，不用再为"大括号要不要换行"争论，`cargo fmt` 一把梭。
 
-**`clippy`**：官方 lint 工具，能挑出几百种写得不够地道的代码。它的提示经常会顺手教你一种更优雅的写法，我一直把它当免费的
-Code Review 用。
+**`clippy`
+**：官方 lint 工具，能挑出几百种写得不够地道的代码。它的提示经常会顺手教你一种更优雅的写法，我一直把它当免费的 Code Review 用。
 
 **`rust-analyzer`**：语言服务器，给编辑器提供补全、跳转、类型提示。VS Code 的 Rust 插件底层跑的就是它。
 
@@ -183,8 +181,8 @@ cargo build --release   # 发布构建，带完整优化
 
 ## 0x05 编辑器配置
 
-编辑器我推荐 VS Code，装上 rust-analyzer 插件，补全、跳转、内联类型提示开箱即用。JetBrains 的 RustRover
-也不错，功能更全，调试体验更好。不过入门阶段，**`VS Code + rust-analyzer`** 已经绰绰有余。
+编辑器我推荐 VS Code，装上 rust-analyzer 插件，补全、跳转、内联类型提示开箱即用。JetBrains 的 RustRover 也不错，功能更全，调试体验更好。不过入门阶段，
+**`VS Code + rust-analyzer`** 已经绰绰有余。
 
 配置好之后，在 `main.rs` 里写上：
 
